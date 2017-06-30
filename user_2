@@ -1,0 +1,34 @@
+//setup the camera and mic for streaming
+mycam = Camera.get();
+mycam_audio = Microphone.get();
+ 
+//control the cameras mode and quality
+mycam.setMode(320,240,30);
+mycam.setQuality(10000,100);
+ 
+//attach a live preview of the camera to the 
+//video object that is setup on the stage
+cam_feed.attachVideo(mycam);
+cam_feed.attachAudio(mycam_audio);
+ 
+//connect to the Flash Media Server
+client_nc = new NetConnection();
+client_nc.connect("rtmp://fms-server/app-name/");
+cam_ns = new NetStream(client_nc);
+ 
+//attach our camera video and audio to the net stream
+cam_ns.attachVideo(mycam);
+cam_ns.attachAudio(mycam_audio);
+ 
+//publish to our Flash Media Server as a 
+//live stream called user_2
+cam_ns.publish("user_2", "live");
+ 
+//bring in user_1's video/audio
+in_ns = new NetStream(client_nc);
+in_ns.play("user_1");
+ 
+//attach user_1's published audio and video
+//so we can see them in the larger chat window
+live_feed.attachVideo(in_ns);
+live_feed.attachAudio(in_ns);
