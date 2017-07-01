@@ -1,0 +1,49 @@
+<script>
+var nc:NetConnection; 
+var ns:NetStream; 
+var nsPlayer:NetStream; 
+var vid:Video; 
+var vidPlayer:Video; 
+var cam:Camera; 
+var mic:Microphone; 
+ 
+nc = new NetConnection(); 
+nc.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus); 
+nc.connect("rtmp://localhost/chat/user_2/");
+
+function onNetStatus(event:NetStatusEvent):void{ 
+    trace(event.info.code); 
+    if(event.info.code == "NetConnection.Connect.Success"){ 
+        publishCamera(); 
+        displayPublishingVideo(); 
+        displayPlaybackVideo(); 
+    } 
+}
+
+function publishCamera() { 
+    cam = Camera.getCamera(); 
+    mic = Microphone.getMicrophone(); 
+    ns = new NetStream(nc); 
+    ns.attachCamera(cam); 
+    ns.attachAudio(mic); 
+    ns.publish("myCamera", "live"); 
+}
+
+function displayPublishingVideo():void { 
+    vid = new Video(); 
+    vid.x = 10; 
+    vid.y = 10; 
+    vid.attachCamera(cam); 
+    addChild(vid);  
+}
+
+function displayPlaybackVideo():void{ 
+    nsPlayer = new NetStream(nc); 
+    nsPlayer.play("myCamera"); 
+    vidPlayer = new Video(); 
+    vidPlayer.x = cam.width + 20; 
+    vidPlayer.y = 10; 
+    vidPlayer.attachNetStream(nsPlayer); 
+    addChild(vidPlayer); 
+}
+</script>
